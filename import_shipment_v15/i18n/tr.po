@@ -1,0 +1,268 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* import_shipment_v15
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-27 04:05+0000\n"
+"PO-Revision-Date: 2025-12-27 04:05+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: import_shipment_v15
+#: model:ir.model,name:import_shipment_v15.model_import_shipment
+msgid "Import Shipment Line"
+msgstr "İthalat Sevkiyat Satırı"
+
+#. module: import_shipment_v15
+#: field:import.shipment,name:0
+msgid "Name"
+msgstr "Ad"
+
+#. module: import_shipment_v15
+#: field:import.shipment,state:0
+#: field:import.shipment.excel.wizard,state:0
+#: field:import.shipment.excel.line,state:0
+msgid "Status"
+msgstr "Durum"
+
+#. module: import_shipment_v15
+#: selection:import.shipment,state:0
+msgid "Waiting"
+msgstr "Bekliyor"
+
+#. module: import_shipment_v15
+#: selection:import.shipment,state:0
+msgid "Partially Imported"
+msgstr "Kısmi Aktarıldı"
+
+#. module: import_shipment_v15
+#: selection:import.shipment,state:0
+msgid "Imported"
+msgstr "Aktarıldı"
+
+#. module: import_shipment_v15
+#: selection:import.shipment,state:0
+msgid "Done"
+msgstr "Tamamlandı"
+
+#. module: import_shipment_v15
+#: selection:import.shipment,state:0
+msgid "Cancelled"
+msgstr "İptal Edildi"
+
+#. module: import_shipment_v15
+#: field:import.shipment,partner_id:0
+msgid "Vendor"
+msgstr "Tedarikçi"
+
+#. module: import_shipment_v15
+#: field:import.shipment,purchase_line_id:0
+msgid "Purchase Order Line"
+msgstr "Satınalma Sipariş Satırı"
+
+#. module: import_shipment_v15
+#: field:import.shipment,purchase_order_id:0
+msgid "Purchase Order"
+msgstr "Satınalma Siparişi"
+
+#. module: import_shipment_v15
+#: field:import.shipment,product_id:0
+msgid "Product"
+msgstr "Ürün"
+
+#. module: import_shipment_v15
+#: field:import.shipment,product_default_code:0
+msgid "Product Code"
+msgstr "Ürün Kodu"
+
+#. module: import_shipment_v15
+#: field:import.shipment,x_manufacturer_code:0
+msgid "Manufacturer Pref"
+msgstr "Üretici Kodu"
+
+#. module: import_shipment_v15
+#: field:import.shipment,product_uom_id:0
+msgid "Unit of Measure"
+msgstr "Ölçü Birimi"
+
+#. module: import_shipment_v15
+#: field:import.shipment,price_unit:0
+msgid "Unit Price"
+msgstr "Birim Fiyat"
+
+#. module: import_shipment_v15
+#: field:import.shipment,currency_id:0
+msgid "Currency"
+msgstr "Para Birimi"
+
+#. module: import_shipment_v15
+#: field:import.shipment,ordered_qty:0
+msgid "Ordered Qty"
+msgstr "Sipariş Miktarı"
+
+#. module: import_shipment_v15
+#: field:import.shipment,imported_qty:0
+msgid "Imported Qty"
+msgstr "Aktarılan Miktar"
+
+#. module: import_shipment_v15
+#: field:import.shipment,received_qty:0
+msgid "Received Qty"
+msgstr "Teslim Alınan Miktar"
+
+#. module: import_shipment_v15
+#: field:import.shipment,open_qty:0
+msgid "Open Qty"
+msgstr "Açık Miktar"
+
+#. module: import_shipment_v15
+#: field:import.shipment,expected_date:0
+msgid "Expected Date"
+msgstr "Beklenen Tarih"
+
+#. module: import_shipment_v15
+#: field:import.shipment,picking_id:0
+msgid "Latest Picking"
+msgstr "Son Transfer"
+
+#. module: import_shipment_v15
+#: field:import.shipment,picking_count:0
+msgid "Picking Count"
+msgstr "Transfer Sayısı"
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/models/import_shipment.py:167
+msgid "Related Pickings"
+msgstr "İlişkili Transferler"
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:51
+msgid "Lütfen bir Excel dosyası yükleyin."
+msgstr "Lütfen bir Excel dosyası yükleyin."
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:58
+msgid "Excel dosyası okunamadı. Hata: %s"
+msgstr "Excel dosyası okunamadı. Hata: %s"
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:94
+msgid "Fiyat farkı (Sipariş: %s, Excel: %s)"
+msgstr "Fiyat farkı (Sipariş: %s, Excel: %s)"
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:97
+msgid "Eşleşme bulundu."
+msgstr "Eşleşme bulundu."
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:108
+msgid "Referans bulunamadı."
+msgstr "Referans bulunamadı."
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:118
+msgid "Aktarılacak geçerli satır yok."
+msgstr "Aktarılacak geçerli satır yok."
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:148
+msgid "Incoming Pickings"
+msgstr "Gelen Transferler"
+
+#. module: import_shipment_v15
+#: code:addons/import_shipment_v15/wizard/import_shipment_excel_wizard.py:163
+msgid "Excel ile Aktar"
+msgstr "Excel ile Aktar"
+
+#. module: import_shipment_v15
+#: model:ir.model,name:import_shipment_v15.model_import_shipment_excel_wizard
+msgid "Import Shipment Excel Wizard"
+msgstr "İthalat Sevkiyat Excel Sihirbazı"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.wizard,line_filter:0
+msgid "Durum Filtresi"
+msgstr "Durum Filtresi"
+
+#. module: import_shipment_v15
+#: selection:import.shipment.excel.wizard,line_filter:0
+msgid "Tümü"
+msgstr "Tümü"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.wizard,display_line_ids:0
+msgid "Görüntülenen Satırlar"
+msgstr "Görüntülenen Satırlar"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.wizard,import_file:0
+msgid "Excel File"
+msgstr "Excel Dosyası"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.wizard,line_ids:0
+msgid "Preview Lines"
+msgstr "Önizleme Satırları"
+
+#. module: import_shipment_v15
+#: model:ir.model,name:import_shipment_v15.model_import_shipment_excel_line
+msgid "Import Shipment Excel Wizard Line"
+msgstr "İthalat Sevkiyat Excel Sihirbaz Satırı"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,reference:0
+msgid "Referans"
+msgstr "Referans"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,quantity:0
+msgid "Miktar"
+msgstr "Miktar"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,excel_price:0
+msgid "Excel Fiyat"
+msgstr "Excel Fiyat"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,odoo_price:0
+msgid "Sipariş Fiyat"
+msgstr "Sipariş Fiyat"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,date:0
+msgid "Tarih"
+msgstr "Tarih"
+
+#. module: import_shipment_v15
+#: field:import.shipment.excel.line,message:0
+msgid "Mesaj"
+msgstr "Mesaj"
+
+#. module: import_shipment_v15
+#: selection:import.shipment.excel.line,state:0
+msgid "Beklemede"
+msgstr "Beklemede"
+
+#. module: import_shipment_v15
+#: selection:import.shipment.excel.line,state:0
+msgid "Başarılı"
+msgstr "Başarılı"
+
+#. module: import_shipment_v15
+#: selection:import.shipment.excel.line,state:0
+msgid "Kontrol"
+msgstr "Kontrol"
+
+#. module: import_shipment_v15
+#: selection:import.shipment.excel.line,state:0
+msgid "Başarısız"
+msgstr "Başarısız"

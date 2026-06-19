@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_import_shipment_tree" model="ir.ui.view">
+        <field name="name">import.shipment.tree</field>
+        <field name="model">import.shipment</field>
+        <field name="arch" type="xml">
+            <tree string="Import Shipments" editable="bottom" multi_edit="1" 
+                  decoration-info="state == 'waiting'" 
+                  decoration-warning="state == 'partially_imported'" 
+                  decoration-success="state == 'imported'"
+                  decoration-muted="state == 'cancel'">
+                <header>
+                    <button name="%(import_shipment_v15.action_import_shipment_excel_wizard)d" string="Excel ile Aktar" type="action" class="oe_highlight"/>
+                </header>
+                <field name="name" readonly="1" optional="show"/>
+                <field name="partner_id" readonly="1" optional="show"/>
+                <field name="purchase_order_id" readonly="1" optional="show"/>
+                <field name="manufacturer_pref" optional="hide" readonly="1"/>
+                <field name="product_id" readonly="1" optional="show"/>
+                <field name="price_unit" readonly="1" optional="show"/>
+                <field name="currency_id" readonly="1" optional="show"/>
+                <field name="ordered_qty" readonly="1" optional="show"/>
+                <field name="imported_qty" optional="show"/>
+                <field name="incoming_qty" optional="show"/>
+                <field name="received_qty" readonly="1" optional="show"/>
+                <field name="open_qty" readonly="1" optional="show"/>
+                <field name="product_uom" string="UoM" readonly="1" optional="show"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'waiting'" 
+                       decoration-warning="state == 'partially_imported'" 
+                       decoration-success="state == 'imported'"
+                       decoration-muted="state == 'cancel'"
+                       optional="show"/>
+                <field name="picking_count" invisible="1"/>
+                <button name="action_open_related_pickings" type="object" icon="fa-truck" title="Related Pickings" attrs="{'invisible': [('picking_count', '=', 0)]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_import_shipment_form" model="ir.ui.view">
+        <field name="name">import.shipment.form</field>
+        <field name="model">import.shipment</field>
+        <field name="arch" type="xml">
+            <form string="Import Shipment">
+                <header>
+                    <button name="create_incoming_picking" string="Create Incoming Picking" type="object" class="oe_highlight" 
+                            attrs="{'invisible': [('state', 'not in', ['waiting', 'partially_imported', 'imported'])]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="waiting,partially_imported,imported,done,cancel"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="purchase_line_id" readonly="1"/>
+                            <field name="purchase_order_id" readonly="1"/>
+                            <field name="expected_date"/>
+                        </group>
+                        <group>
+                            <field name="product_id" readonly="1"/>
+                            <field name="manufacturer_pref" readonly="1"/>
+                            <field name="product_uom" readonly="1"/>
+                            <field name="price_unit" readonly="1"/>
+                            <field name="currency_id" readonly="1"/>
+                            <field name="ordered_qty" readonly="1"/>
+                            <field name="imported_qty" readonly="1"/>
+                            <field name="incoming_qty"/>
+                            <field name="received_qty" readonly="1"/>
+                            <field name="open_qty" readonly="1"/>
+                            <field name="picking_id" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_import_shipment_search" model="ir.ui.view">
+        <field name="name">import.shipment.search</field>
+        <field name="model">import.shipment</field>
+        <field name="arch" type="xml">
+            <search string="Search Import Shipments">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="purchase_order_id"/>
+                <field name="product_id"/>
+                <field name="x_manufacturer_code"/>
+                <filter string="Waiting" name="waiting" domain="[('state', '=', 'waiting')]"/>
+                <filter string="Imported" name="imported" domain="[('state', '=', 'imported')]"/>
+                <filter string="Partially Imported" name="partially_imported" domain="[('state', '=', 'partially_imported')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancel" domain="[('state', '=', 'cancel')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Vendor" name="group_by_partner" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Purchase Order" name="group_by_po" domain="[]" context="{'group_by': 'purchase_order_id'}"/>
+                    <filter string="Status" name="group_by_state" domain="[]" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_import_shipment" model="ir.actions.act_window">
+        <field name="name">Import Shipments</field>
+        <field name="res_model">import.shipment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_import_shipment_search"/>
+        <field name="context">{'search_default_group_by_partner': 1}</field>
+    </record>
+
+    <menuitem id="menu_import_shipment"
+              name="Import Shipments"
+              parent="purchase.menu_procurement_management"
+              action="action_import_shipment"
+              sequence="20"/>
+</odoo>
