@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add stock_qty column to import shipment tree view -->
+    <record id="import_shipment_v15.view_import_shipment_tree" model="ir.ui.view">
+        <field name="name">import.shipment.tree.inherit.stock</field>
+        <field name="model">import.shipment</field>
+        <field name="inherit_id" ref="import_shipment_v15.view_import_shipment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="stock_qty" readonly="1" optional="show" widget="float"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
