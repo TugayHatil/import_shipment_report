@@ -6,21 +6,8 @@ class ImportShipment(models.Model):
 
     stock_qty = fields.Float(
         string='Stock Qty',
-        compute='_compute_stock_qty',
+        related='product_id.qty_available',
         store=True,
+        readonly=True,
         help="Current stock quantity from product inventory"
     )
-
-    @api.depends('product_id')
-    def _compute_stock_qty(self):
-        for record in self:
-            if record.product_id:
-                # Get the current stock quantity for the product
-                quant = self.env['stock.quant']._gather(
-                    record.product_id,
-                    self.env['stock.location'].search([('usage', '=', 'internal')]),
-                    strict=False
-                )
-                record.stock_qty = sum(quant.mapped('quantity'))
-            else:
-                record.stock_qty = 0.0
