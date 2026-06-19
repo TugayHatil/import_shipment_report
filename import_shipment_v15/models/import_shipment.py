@@ -43,15 +43,21 @@ class ImportShipment(models.Model):
 
     def _compute_picking_count(self):
         for rec in self:
-            rec.picking_count = self.env['stock.picking'].search_count([
-                ('move_ids.import_shipment_id', '=', rec.id)
+            # First find moves related to this shipment
+            moves = self.env['stock.move'].search([
+                ('import_shipment_id', '=', rec.id)
             ])
+            # Then count unique pickings from these moves
+            rec.picking_count = len(moves.mapped('picking_id'))
 
     def action_open_related_pickings(self):
         self.ensure_one()
-        pickings = self.env['stock.picking'].search([
-            ('move_ids.import_shipment_id', '=', self.id)
+        # First find moves related to this shipment
+        moves = self.env['stock.move'].search([
+            ('import_shipment_id', '=', self.id)
         ])
+        # Then get unique pickings from these moves
+        pickings = moves.mapped('picking_id')
         return {
             'name': _('Related Pickings'),
             'type': 'ir.actions.act_window',
