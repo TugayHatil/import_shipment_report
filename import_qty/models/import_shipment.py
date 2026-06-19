@@ -108,18 +108,25 @@ class ImportShipment(models.Model):
 
         # Create attachment with proper Excel extension
         filename = 'import_shipment_report.xlsx'
+        excel_data = output.getvalue()
+        
+        # Encode data properly for Odoo
+        import base64
+        encoded_data = base64.b64encode(excel_data)
+        
         attachment = self.env['ir.attachment'].create({
             'name': filename,
             'type': 'binary',
-            'datas': output.read(),
+            'datas': encoded_data.decode('utf-8'),
             'res_model': self._name,
             'res_id': 1,  # Use fixed res_id to avoid singleton error
-            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'datas_fname': filename,
         })
 
         # Return download action
         return {
             'type': 'ir.actions.act_url',
-            'url': f'/web/content/{attachment.id}?download=true&filename={filename}',
+            'url': f'/web/content/{attachment.id}?download=true',
             'target': 'new',
         }
