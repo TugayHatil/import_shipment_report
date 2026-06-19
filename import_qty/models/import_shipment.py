@@ -37,3 +37,19 @@ class ImportShipment(models.Model):
                 record.free_qty = record.product_id.free_qty
             else:
                 record.free_qty = 0.0
+
+    def action_open_report_wizard(self):
+        """Open the report wizard for selected shipments"""
+        # Get all shipments in the current view
+        shipment_ids = self.env['import.shipment'].search([]).ids
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Import Shipment Report',
+            'res_model': 'import.shipment.report.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_shipment_ids': shipment_ids,
+            },
+        }

@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="import_shipment_v15.view_import_shipment_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <button name="%(import_qty.action_import_shipment_report_wizard)d" string="Rapor Al" type="action" class="oe_highlight"/>
+                <button name="action_open_report_wizard" string="Rapor Al" type="object" class="oe_highlight"/>
             </xpath>
             <xpath expr="//field[@name='product_id']" position="after">
                 <field name="stock_qty" readonly="1" optional="show" widget="float"/>
