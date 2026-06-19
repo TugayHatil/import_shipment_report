@@ -17,7 +17,7 @@ class PurchaseOrder(models.Model):
         res = super(PurchaseOrder, self).button_confirm()
         # Create import shipment records if picking type has x_is_import_type
         for order in self:
-            if order.picking_type_id.x_is_import_type:
+            if order.picking_type_id.use_import_shipment:
                 for line in order.order_line:
                     if line.product_id.type == 'service':
                         continue
