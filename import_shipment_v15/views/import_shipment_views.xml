@@ -15,7 +15,7 @@
                 <field name="name" readonly="1" optional="show"/>
                 <field name="partner_id" readonly="1" optional="show"/>
                 <field name="purchase_order_id" readonly="1" optional="show"/>
-                <field name="manufacturer_pref" optional="hide" readonly="1"/>
+                <field name="x_manufacturer_code" optional="hide" readonly="1"/>
                 <field name="product_id" readonly="1" optional="show"/>
                 <field name="price_unit" readonly="1" optional="show"/>
                 <field name="currency_id" readonly="1" optional="show"/>
@@ -60,7 +60,7 @@
                         </group>
                         <group>
                             <field name="product_id" readonly="1"/>
-                            <field name="manufacturer_pref" readonly="1"/>
+                            <field name="x_manufacturer_code" readonly="1"/>
                             <field name="product_uom" readonly="1"/>
                             <field name="price_unit" readonly="1"/>
                             <field name="currency_id" readonly="1"/>
