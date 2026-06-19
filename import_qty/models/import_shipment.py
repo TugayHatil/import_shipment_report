@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import io
+import xlsxwriter
 from odoo import models, fields, api, _
+from odoo.tools.translate import _
+from odoo.exceptions import UserError
 
 class ImportShipment(models.Model):
     _inherit = 'import.shipment'
