@@ -13,7 +13,6 @@
     'depends': ['import_shipment_v15', 'stock'],
     'data': [
         'views/import_shipment_views.xml',
-        'wizard/import_shipment_report_wizard_views.xml',
     ],
     'installable': True,
     'auto_install': False,
