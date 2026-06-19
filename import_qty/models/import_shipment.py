@@ -113,7 +113,7 @@ class ImportShipment(models.Model):
             'type': 'binary',
             'datas': output.read(),
             'res_model': self._name,
-            'res_id': self.id,
+            'res_id': 1,  # Use fixed res_id to avoid singleton error
             'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         })
 
