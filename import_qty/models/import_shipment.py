@@ -9,6 +9,7 @@ class ImportShipment(models.Model):
         compute='_compute_stock_qty',
         store=True,
         readonly=True,
+        group_operator='avg',
         help="Current stock quantity from product inventory"
     )
 
