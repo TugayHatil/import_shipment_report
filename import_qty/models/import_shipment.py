@@ -121,7 +121,6 @@ class ImportShipment(models.Model):
             'res_model': self._name,
             'res_id': 1,  # Use fixed res_id to avoid singleton error
             'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'datas_fname': filename,
         })
 
         # Return download action
