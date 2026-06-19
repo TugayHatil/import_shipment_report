@@ -6,8 +6,16 @@ class ImportShipment(models.Model):
 
     stock_qty = fields.Float(
         string='Stock Qty',
-        related='product_id.qty_available',
+        compute='_compute_stock_qty',
         store=True,
         readonly=True,
         help="Current stock quantity from product inventory"
     )
+
+    @api.depends('product_id')
+    def _compute_stock_qty(self):
+        for record in self:
+            if record.product_id:
+                record.stock_qty = record.product_id.qty_available
+            else:
+                record.stock_qty = 0.0
