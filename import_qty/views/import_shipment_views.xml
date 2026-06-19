@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
                 <field name="stock_qty" readonly="1" optional="show" widget="float"/>
+                <field name="free_qty" readonly="1" optional="show" widget="float"/>
             </xpath>
         </field>
     </record>
