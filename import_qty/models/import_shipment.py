@@ -30,7 +30,26 @@ class ImportShipment(models.Model):
     def _compute_stock_qty(self):
         for record in self:
             if record.product_id:
-                record.stock_qty = record.product_id.qty_available
+                # Get only internal locations with include_in_stock_qty checked
+                filtered_locations = self.env['stock.location'].search([
+                    ('usage', '=', 'internal'),
+                    ('include_in_stock_qty', '=', True)
+                ])
+                
+                if filtered_locations:
+                    # Calculate stock quantity from filtered locations only
+                    total_qty = 0.0
+                    for location in filtered_locations:
+                        quants = self.env['stock.quant']._gather(
+                            record.product_id,
+                            location,
+                            strict=False
+                        )
+                        total_qty += sum(quants.mapped('quantity'))
+                    record.stock_qty = total_qty
+                else:
+                    # If no locations are filtered, show 0
+                    record.stock_qty = 0.0
             else:
                 record.stock_qty = 0.0
 
