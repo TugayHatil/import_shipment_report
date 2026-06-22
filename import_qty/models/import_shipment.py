@@ -14,7 +14,7 @@ class ImportShipment(models.Model):
     stock_qty = fields.Float(
         string='Stock Qty',
         compute='_compute_stock_qty',
-        store=True,
+        store=False,  # Change to store=False to force real-time computation
         readonly=True,
         group_operator='avg',
         help="Current stock quantity from filtered locations only"
@@ -23,7 +23,7 @@ class ImportShipment(models.Model):
     free_qty = fields.Float(
         string='Free Qty',
         compute='_compute_free_qty',
-        store=True,
+        store=False,  # Change to store=False to force real-time computation
         readonly=True,
         group_operator='avg',
         help="Free quantity (available - reserved) from filtered locations only"
@@ -31,6 +31,18 @@ class ImportShipment(models.Model):
 
     @api.depends('product_id')
     def _compute_stock_qty(self):
+        _logger.info("=== STARTING STOCK_QY COMPUTATION ===")
+        
+        # First, let's check if any locations are marked
+        all_marked_locations = self.env['stock.location'].search([
+            ('usage', '=', 'internal'),
+            ('include_in_stock_qty', '=', True)
+        ])
+        
+        _logger.info(f"TOTAL MARKED LOCATIONS IN SYSTEM: {len(all_marked_locations)}")
+        for loc in all_marked_locations:
+            _logger.info(f"  - {loc.name} (ID: {loc.id})")
+        
         for record in self:
             _logger.info(f"Computing stock_qty for record {record.id}, product {record.product_id.name if record.product_id else 'None'}")
             
@@ -39,22 +51,15 @@ class ImportShipment(models.Model):
                 _logger.info(f"No product for record {record.id}, setting stock_qty to 0")
                 continue
                 
-            # Get only internal locations with include_in_stock_qty checked
-            filtered_locations = self.env['stock.location'].search([
-                ('usage', '=', 'internal'),
-                ('include_in_stock_qty', '=', True)
-            ])
-            
-            _logger.info(f"Product {record.product_id.name}: Found {len(filtered_locations)} filtered locations")
-            
-            if not filtered_locations:
+            # Force return 0 if no locations are marked
+            if not all_marked_locations:
                 record.stock_qty = 0.0
-                _logger.info(f"No filtered locations for {record.product_id.name}, setting stock_qty to 0")
+                _logger.info(f"NO MARKED LOCATIONS FOUND - FORCING stock_qty to 0 for {record.product_id.name}")
                 continue
                 
             # Use SQL query for more reliable calculation
             self.env.cr.execute("""
-                SELECT SUM(sq.quantity)
+                SELECT COALESCE(SUM(sq.quantity), 0)
                 FROM stock_quant sq
                 JOIN stock_location sl ON sq.location_id = sl.id
                 WHERE sq.product_id = %s
@@ -68,9 +73,21 @@ class ImportShipment(models.Model):
             
             record.stock_qty = total_qty
             _logger.info(f"Final stock_qty for {record.product_id.name}: {total_qty} (SQL query result)")
+        
+        _logger.info("=== STOCK_QY COMPUTATION COMPLETED ===")
 
     @api.depends('product_id')
     def _compute_free_qty(self):
+        _logger.info("=== STARTING FREE_QY COMPUTATION ===")
+        
+        # First, let's check if any locations are marked
+        all_marked_locations = self.env['stock.location'].search([
+            ('usage', '=', 'internal'),
+            ('include_in_stock_qty', '=', True)
+        ])
+        
+        _logger.info(f"TOTAL MARKED LOCATIONS IN SYSTEM: {len(all_marked_locations)}")
+        
         for record in self:
             _logger.info(f"Computing free_qty for record {record.id}, product {record.product_id.name if record.product_id else 'None'}")
             
@@ -79,9 +96,15 @@ class ImportShipment(models.Model):
                 _logger.info(f"No product for record {record.id}, setting free_qty to 0")
                 continue
                 
+            # Force return 0 if no locations are marked
+            if not all_marked_locations:
+                record.free_qty = 0.0
+                _logger.info(f"NO MARKED LOCATIONS FOUND - FORCING free_qty to 0 for {record.product_id.name}")
+                continue
+                
             # Use SQL query for more reliable calculation
             self.env.cr.execute("""
-                SELECT SUM(sq.quantity - sq.reserved_quantity)
+                SELECT COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0)
                 FROM stock_quant sq
                 JOIN stock_location sl ON sq.location_id = sl.id
                 WHERE sq.product_id = %s
@@ -95,6 +118,8 @@ class ImportShipment(models.Model):
             
             record.free_qty = total_free_qty
             _logger.info(f"Final free_qty for {record.product_id.name}: {total_free_qty} (SQL query result)")
+        
+        _logger.info("=== FREE_QY COMPUTATION COMPLETED ===")
 
     def action_download_excel_report(self):
         """Download Excel report directly without wizard"""
