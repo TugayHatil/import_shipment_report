@@ -17,7 +17,7 @@ class ImportShipment(models.Model):
         store=True,
         readonly=True,
         group_operator='avg',
-        help="Current stock quantity from product inventory"
+        help="Current stock quantity from filtered locations only"
     )
 
     free_qty = fields.Float(
@@ -26,70 +26,78 @@ class ImportShipment(models.Model):
         store=True,
         readonly=True,
         group_operator='avg',
-        help="Free quantity (available - reserved) from product inventory"
+        help="Free quantity (available - reserved) from filtered locations only"
     )
 
     @api.depends('product_id')
     def _compute_stock_qty(self):
         for record in self:
-            if record.product_id:
-                # Get only internal locations with include_in_stock_qty checked
-                filtered_locations = self.env['stock.location'].search([
-                    ('usage', '=', 'internal'),
-                    ('include_in_stock_qty', '=', True)
-                ])
-                
-                # Debug: Log the filtered locations count
-                _logger.info(f"Product {record.product_id.name}: Found {len(filtered_locations)} filtered locations")
-                
-                if filtered_locations:
-                    # Calculate stock quantity from filtered locations only
-                    total_qty = 0.0
-                    for location in filtered_locations:
-                        quants = self.env['stock.quant']._gather(
-                            record.product_id,
-                            location,
-                            strict=False
-                        )
-                        location_qty = sum(quants.mapped('quantity'))
-                        total_qty += location_qty
-                        _logger.info(f"Location {location.name}: {location_qty} units")
-                    record.stock_qty = total_qty
-                    _logger.info(f"Total stock_qty for {record.product_id.name}: {total_qty}")
-                else:
-                    # If no locations are filtered, show 0
-                    record.stock_qty = 0.0
-                    _logger.info(f"No filtered locations found for {record.product_id.name}, setting stock_qty to 0")
-            else:
+            if not record.product_id:
                 record.stock_qty = 0.0
+                continue
+                
+            # Get only internal locations with include_in_stock_qty checked
+            filtered_locations = self.env['stock.location'].search([
+                ('usage', '=', 'internal'),
+                ('include_in_stock_qty', '=', True)
+            ])
+            
+            _logger.info(f"Product {record.product_id.name}: Found {len(filtered_locations)} filtered locations")
+            
+            if not filtered_locations:
+                record.stock_qty = 0.0
+                _logger.info(f"No filtered locations for {record.product_id.name}, setting stock_qty to 0")
+                continue
+                
+            # Calculate stock quantity from filtered locations only
+            total_qty = 0.0
+            for location in filtered_locations:
+                # Get stock quants for this product and location
+                quants = self.env['stock.quant'].search([
+                    ('product_id', '=', record.product_id.id),
+                    ('location_id', '=', location.id),
+                    ('quantity', '>', 0)
+                ])
+                location_qty = sum(quants.mapped('quantity'))
+                total_qty += location_qty
+                _logger.info(f"Location {location.name}: {location_qty} units")
+                
+            record.stock_qty = total_qty
+            _logger.info(f"Final stock_qty for {record.product_id.name}: {total_qty}")
 
     @api.depends('product_id')
     def _compute_free_qty(self):
         for record in self:
-            if record.product_id:
-                # Get only internal locations with include_in_stock_qty checked
-                filtered_locations = self.env['stock.location'].search([
-                    ('usage', '=', 'internal'),
-                    ('include_in_stock_qty', '=', True)
-                ])
-                
-                if filtered_locations:
-                    # Calculate free quantity from filtered locations only
-                    total_free_qty = 0.0
-                    for location in filtered_locations:
-                        quants = self.env['stock.quant']._gather(
-                            record.product_id,
-                            location,
-                            strict=False
-                        )
-                        # Free quantity = quantity - reserved_quantity
-                        total_free_qty += sum(quants.mapped('quantity') - quants.mapped('reserved_quantity'))
-                    record.free_qty = total_free_qty
-                else:
-                    # If no locations are filtered, show 0
-                    record.free_qty = 0.0
-            else:
+            if not record.product_id:
                 record.free_qty = 0.0
+                continue
+                
+            # Get only internal locations with include_in_stock_qty checked
+            filtered_locations = self.env['stock.location'].search([
+                ('usage', '=', 'internal'),
+                ('include_in_stock_qty', '=', True)
+            ])
+            
+            if not filtered_locations:
+                record.free_qty = 0.0
+                _logger.info(f"No filtered locations for {record.product_id.name}, setting free_qty to 0")
+                continue
+                
+            # Calculate free quantity from filtered locations only
+            total_free_qty = 0.0
+            for location in filtered_locations:
+                # Get stock quants for this product and location
+                quants = self.env['stock.quant'].search([
+                    ('product_id', '=', record.product_id.id),
+                    ('location_id', '=', location.id),
+                    ('quantity', '>', 0)
+                ])
+                # Free quantity = quantity - reserved_quantity
+                location_free_qty = sum(quants.mapped('quantity') - quants.mapped('reserved_quantity'))
+                total_free_qty += location_free_qty
+                
+            record.free_qty = total_free_qty
+            _logger.info(f"Final free_qty for {record.product_id.name}: {total_free_qty}")
 
     def action_download_excel_report(self):
         """Download Excel report directly without wizard"""
