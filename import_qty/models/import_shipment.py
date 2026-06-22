@@ -60,8 +60,12 @@ class ImportShipment(models.Model):
                     'stock_qty': shipment.stock_qty,
                     'free_qty': shipment.free_qty,
                     'ordered_qty': 0.0,
+                    'imported_qty': 0.0,
+                    'open_qty': 0.0,
                 }
             product_data[product_id]['ordered_qty'] += shipment.ordered_qty
+            product_data[product_id]['imported_qty'] += shipment.imported_qty
+            product_data[product_id]['open_qty'] += shipment.open_qty
 
         # Create Excel file
         output = io.BytesIO()
@@ -86,10 +90,10 @@ class ImportShipment(models.Model):
 
         # Set column widths
         worksheet.set_column('A:A', 40)  # Product
-        worksheet.set_column('B:D', 15)  # Stock Qty, Free Qty, Ordered Qty
+        worksheet.set_column('B:F', 15)  # Stock Qty, Free Qty, Ordered Qty, Imported Qty, Open Qty
 
         # Write headers
-        headers = ['Ürün', 'Stok Miktarı', 'Free Miktar', 'Sipariş Miktarı']
+        headers = ['Ürün', 'Stok Miktarı', 'Free Miktar', 'Sipariş Miktarı', 'Imported Miktar', 'Open Miktar']
         for col, header in enumerate(headers):
             worksheet.write(0, col, header, header_format)
 
@@ -101,6 +105,8 @@ class ImportShipment(models.Model):
             worksheet.write(row, 1, data['stock_qty'], cell_format)
             worksheet.write(row, 2, data['free_qty'], cell_format)
             worksheet.write(row, 3, data['ordered_qty'], cell_format)
+            worksheet.write(row, 4, data['imported_qty'], cell_format)
+            worksheet.write(row, 5, data['open_qty'], cell_format)
             row += 1
 
         workbook.close()
