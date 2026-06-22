@@ -57,7 +57,27 @@ class ImportShipment(models.Model):
     def _compute_free_qty(self):
         for record in self:
             if record.product_id:
-                record.free_qty = record.product_id.free_qty
+                # Get only internal locations with include_in_stock_qty checked
+                filtered_locations = self.env['stock.location'].search([
+                    ('usage', '=', 'internal'),
+                    ('include_in_stock_qty', '=', True)
+                ])
+                
+                if filtered_locations:
+                    # Calculate free quantity from filtered locations only
+                    total_free_qty = 0.0
+                    for location in filtered_locations:
+                        quants = self.env['stock.quant']._gather(
+                            record.product_id,
+                            location,
+                            strict=False
+                        )
+                        # Free quantity = quantity - reserved_quantity
+                        total_free_qty += sum(quants.mapped('quantity') - quants.mapped('reserved_quantity'))
+                    record.free_qty = total_free_qty
+                else:
+                    # If no locations are filtered, show 0
+                    record.free_qty = 0.0
             else:
                 record.free_qty = 0.0
 
