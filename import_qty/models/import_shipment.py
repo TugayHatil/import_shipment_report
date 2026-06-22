@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import io
 import xlsxwriter
+import logging
 from odoo import models, fields, api, _
 from odoo.tools.translate import _
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 class ImportShipment(models.Model):
     _inherit = 'import.shipment'
@@ -36,6 +39,9 @@ class ImportShipment(models.Model):
                     ('include_in_stock_qty', '=', True)
                 ])
                 
+                # Debug: Log the filtered locations count
+                _logger.info(f"Product {record.product_id.name}: Found {len(filtered_locations)} filtered locations")
+                
                 if filtered_locations:
                     # Calculate stock quantity from filtered locations only
                     total_qty = 0.0
@@ -45,11 +51,15 @@ class ImportShipment(models.Model):
                             location,
                             strict=False
                         )
-                        total_qty += sum(quants.mapped('quantity'))
+                        location_qty = sum(quants.mapped('quantity'))
+                        total_qty += location_qty
+                        _logger.info(f"Location {location.name}: {location_qty} units")
                     record.stock_qty = total_qty
+                    _logger.info(f"Total stock_qty for {record.product_id.name}: {total_qty}")
                 else:
                     # If no locations are filtered, show 0
                     record.stock_qty = 0.0
+                    _logger.info(f"No filtered locations found for {record.product_id.name}, setting stock_qty to 0")
             else:
                 record.stock_qty = 0.0
 
