@@ -32,8 +32,11 @@ class ImportShipment(models.Model):
     @api.depends('product_id')
     def _compute_stock_qty(self):
         for record in self:
+            _logger.info(f"Computing stock_qty for record {record.id}, product {record.product_id.name if record.product_id else 'None'}")
+            
             if not record.product_id:
                 record.stock_qty = 0.0
+                _logger.info(f"No product for record {record.id}, setting stock_qty to 0")
                 continue
                 
             # Get only internal locations with include_in_stock_qty checked
@@ -49,55 +52,49 @@ class ImportShipment(models.Model):
                 _logger.info(f"No filtered locations for {record.product_id.name}, setting stock_qty to 0")
                 continue
                 
-            # Calculate stock quantity from filtered locations only
-            total_qty = 0.0
-            for location in filtered_locations:
-                # Get stock quants for this product and location
-                quants = self.env['stock.quant'].search([
-                    ('product_id', '=', record.product_id.id),
-                    ('location_id', '=', location.id),
-                    ('quantity', '>', 0)
-                ])
-                location_qty = sum(quants.mapped('quantity'))
-                total_qty += location_qty
-                _logger.info(f"Location {location.name}: {location_qty} units")
-                
+            # Use SQL query for more reliable calculation
+            self.env.cr.execute("""
+                SELECT SUM(sq.quantity)
+                FROM stock_quant sq
+                JOIN stock_location sl ON sq.location_id = sl.id
+                WHERE sq.product_id = %s
+                AND sl.usage = 'internal'
+                AND sl.include_in_stock_qty = true
+                AND sq.quantity > 0
+            """, (record.product_id.id,))
+            
+            result = self.env.cr.fetchone()
+            total_qty = result[0] if result and result[0] else 0.0
+            
             record.stock_qty = total_qty
-            _logger.info(f"Final stock_qty for {record.product_id.name}: {total_qty}")
+            _logger.info(f"Final stock_qty for {record.product_id.name}: {total_qty} (SQL query result)")
 
     @api.depends('product_id')
     def _compute_free_qty(self):
         for record in self:
+            _logger.info(f"Computing free_qty for record {record.id}, product {record.product_id.name if record.product_id else 'None'}")
+            
             if not record.product_id:
                 record.free_qty = 0.0
+                _logger.info(f"No product for record {record.id}, setting free_qty to 0")
                 continue
                 
-            # Get only internal locations with include_in_stock_qty checked
-            filtered_locations = self.env['stock.location'].search([
-                ('usage', '=', 'internal'),
-                ('include_in_stock_qty', '=', True)
-            ])
+            # Use SQL query for more reliable calculation
+            self.env.cr.execute("""
+                SELECT SUM(sq.quantity - sq.reserved_quantity)
+                FROM stock_quant sq
+                JOIN stock_location sl ON sq.location_id = sl.id
+                WHERE sq.product_id = %s
+                AND sl.usage = 'internal'
+                AND sl.include_in_stock_qty = true
+                AND sq.quantity > 0
+            """, (record.product_id.id,))
             
-            if not filtered_locations:
-                record.free_qty = 0.0
-                _logger.info(f"No filtered locations for {record.product_id.name}, setting free_qty to 0")
-                continue
-                
-            # Calculate free quantity from filtered locations only
-            total_free_qty = 0.0
-            for location in filtered_locations:
-                # Get stock quants for this product and location
-                quants = self.env['stock.quant'].search([
-                    ('product_id', '=', record.product_id.id),
-                    ('location_id', '=', location.id),
-                    ('quantity', '>', 0)
-                ])
-                # Free quantity = quantity - reserved_quantity
-                location_free_qty = sum(quants.mapped('quantity') - quants.mapped('reserved_quantity'))
-                total_free_qty += location_free_qty
-                
+            result = self.env.cr.fetchone()
+            total_free_qty = result[0] if result and result[0] else 0.0
+            
             record.free_qty = total_free_qty
-            _logger.info(f"Final free_qty for {record.product_id.name}: {total_free_qty}")
+            _logger.info(f"Final free_qty for {record.product_id.name}: {total_free_qty} (SQL query result)")
 
     def action_download_excel_report(self):
         """Download Excel report directly without wizard"""
